@@ -7,6 +7,10 @@ import scala.io.Source._
 import akka.routing.{ CyclicIterator, Routing }
 import akka.actor.{ Actor, ActorRef, PoisonPill }
 import Actor._
+import akka.amqp._
+import akka.amqp.AMQP._
+import com.rabbitmq.client.Address
+
 
 /**
  * For now we just read from stdin some numbers
@@ -49,11 +53,25 @@ object Pointage extends App {
     //We create the load balancer with a round round robin strategy
     //val loadBalancer = Routing.loadBalancerActor(CyclicIterator(workers))
 
+    val myAddresses = Array(new Address("mindslicer.com", 5672))
+    val connectionParameters = ConnectionParameters(myAddresses, "guest", "guest", "/")
+    val connection = AMQP.newConnection(connectionParameters)
+
+    val exchangeParameters = ExchangeParameters("my_direct_exchange", Direct)
+
+    val consumer = AMQP.newConsumer(connection, ConsumerParameters("some.routing", actorOf(new Actor { def receive = {
+        case Delivery(payload, _, _, _, _, _) => println("####MESSAGE received on server: %s".format(new String(payload)))
+    }}), None, Some(exchangeParameters)))
+
+    val producer = AMQP.newProducer(connection, ProducerParameters(Some(exchangeParameters)))
+
+
     def receive = {
       case NewInput(input) =>
         println("Master received a new input: " + input)
         // check that input is an Integer
         // print in text file
+        producer ! Message(input.getBytes, "some.routing")
         // send message to worker
       case Problem(pb) =>
         println("Worker had a problem: " + pb)
@@ -67,6 +85,8 @@ object Pointage extends App {
 
     override def postStop() = {
       println("=> postStop() of the Master")
+      producer.stop
+      connection.stop
     }
   }
 
