@@ -14,3 +14,5 @@ libraryDependencies += "se.scalablesolutions.akka" % "akka-sbt-plugin" % "1.2"
 libraryDependencies += "se.scalablesolutions.akka" % "akka-actor" % "1.2"
 
 libraryDependencies += "se.scalablesolutions.akka" % "akka-amqp" % "1.2"
+
+libraryDependencies += "se.scalablesolutions.akka" % "akka-stm" % "1.2"
