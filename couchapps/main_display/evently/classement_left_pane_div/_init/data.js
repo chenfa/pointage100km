@@ -4,7 +4,7 @@ function(data) {
     var i = 0;
     var app = $$(this).app
 
-    $.log("toto: " + JSON.stringify(app.contestants));
+    $.log("app.contestants: " + JSON.stringify(app.contestants));
     
     //$.log("data: " + JSON.stringify(data));
 
@@ -36,32 +36,37 @@ function(data) {
 	return result;
     }
 
-    
-
     function map_bib(data) {
-	var result = {};
+	var result = {
+	    bib: 0,
+	    dossard: 0,
+	    nom: "inconnu",
+	    prenom: "inconnu",
+	    course: 0,
+	    lap: 0,
+	};
 
 	$.log("bibs: " + JSON.stringify(data));
 
+	//set known values
+	result.dossard = data.bib;
+	result.lap     = data.lap;
+
 	if (app.contestants === undefined) {
-	    $.log("1");
-	    result = data;
+	    $.log("contestants not loaded yet");
 	}
 	else {
-	    $.log("2");
 	    var current_contestant = app.contestants[data.bib];
-	    
-	    //here we need to retrieve the info about each contestant
-	    //result = data;
-	    
-	    result.bib     = data.bib;
-	    result.dossard = data.bib;
-	    result.nom     = current_contestant.nom;
-	    result.prenum  = current_contestant.prenom;
-	    result.course  = current_contestant.course;
-	    result.lap     = data.lap;
-	}
 
+	    if (current_contestant === undefined) {
+		$.log("skip contestant: " + data.bib);
+	    }
+	    else {
+		result.nom     = current_contestant.nom;
+		result.prenom  = current_contestant.prenom;
+		result.course  = current_contestant.course;	
+	    }
+	}
 
 	return result;
     }
