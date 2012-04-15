@@ -50,7 +50,7 @@ function(cb) {
     function _get_all_contestants(app, cb1) {
 	$.log("here0");
 	app.db.view("common/all_contestants", {
-	    sucess: function(data) {
+	    success: function(data) {
 		cb1(_unwrap_data(data));
 	    }
 	});
