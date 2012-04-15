@@ -2,7 +2,8 @@ function(data) {
     var p = {};
     var res = [];
     var i = 0;
-
+    var app = $$(this).app
+    
     //$.log("data: " + JSON.stringify(data));
 
     function map_contestants(data) {
@@ -33,6 +34,8 @@ function(data) {
 	return result;
     }
 
+    
+
     function map_bib(data) {
 	var result = {};
 
@@ -46,14 +49,10 @@ function(data) {
 
     data.rows.map(map_races);
 
-    res.map(map_bib);
-
     p.count = i;
     p.items = res.map(map_bib);
-
     
     $.log("res: " + JSON.stringify(res));
-
     $.log("p: " + JSON.stringify(p));
 
     return p;
