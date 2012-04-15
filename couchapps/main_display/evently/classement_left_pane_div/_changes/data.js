@@ -3,6 +3,8 @@ function(data) {
     var res = [];
     var i = 0;
     var app = $$(this).app
+
+    $.log("toto: " + JSON.stringify(app.contestants));
     
     //$.log("data: " + JSON.stringify(data));
 
@@ -39,10 +41,27 @@ function(data) {
     function map_bib(data) {
 	var result = {};
 
-	//$.log("bibs: " + JSON.stringify(data));
+	$.log("bibs: " + JSON.stringify(data));
 
-	//here we need to retrieve the info about each contestant
-	result = data;
+	if (app.contestants === undefined) {
+	    $.log("1");
+	    result = data;
+	}
+	else {
+	    $.log("2");
+	    var current_contestant = app.contestants[data.bib];
+	    
+	    //here we need to retrieve the info about each contestant
+	    //result = data;
+	    
+	    result.bib     = data.bib;
+	    result.dossard = data.bib;
+	    result.nom     = current_contestant.nom;
+	    result.prenum  = current_contestant.prenom;
+	    result.course  = current_contestant.course;
+	    result.lap     = data.lap;
+	}
+
 
 	return result;
     }

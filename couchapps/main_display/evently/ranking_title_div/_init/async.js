@@ -1,71 +1,49 @@
 function(cb) {
     var i = 0;
     var app = $$(this).app;
-    var res = [];
-    var stop_iterating = false;
-    var CONTESTANT_COUNT = 30;
-
-    //error callback
-    function callback_error(stat, err, reason) {
-	$.log("stat" + JSON.stringify(stat));
-	$.log("err" + JSON.stringify(err));
-	$.log("reason" + JSON.stringify(reason));
-	//alert("Error reading db: " + JSON.stringify(reason));
-	stop_iterating = true;
-    }
-
-    //success callback
-    function read_contestant_info_callback(data) {
-	$.log("contestant data: " + JSON.stringify(data)); 
-
-	res.push(data);
-
-	return;
-    }
-
-    //read from the db 
-    function get_contestant_info(bib) {
-	app.db.openDoc('contestant-' + bib, {
-	    success: read_contestant_info_callback,
-	    error: callback_error
-	});
-    }
-
-    //load contestants
-    for (i = 1; i < CONTESTANT_COUNT; i++) {
-	//get_contestant_info(i);
-	if (stop_iterating == true)
-	    break;
-
-    }
-
-    $.log("gathered data: " + JSON.stringify(res));
     
-    function _unwrap_data(data) {
+    function unwrap_data(data) {
 	return data.rows.map(function(row) {
 	    return row.value;
 	});
     }
 
-    function _get_all_contestants(app, cb1) {
-	$.log("here0");
+    function get_all_contestants(app, cb1) {
 	app.db.view("common/all_contestants", {
 	    success: function(data) {
-		cb1(_unwrap_data(data));
+		cb1(unwrap_data(data));
 	    }
 	});
     }
 
-    $.log("toto");
+    function map_contestants(data) {
+	var result = {};
 
-    function cb2(params) {
-	$.log("cb2: " + JSON.stringify(params));
-	cb(params);
+	//$.log("map_contestants: " + JSON.stringify(data));
+	
+	//no error checking: we suppose all contestants have the following info in the database
+	result.dossard = data.dossard;
+	result.nom     = data.nom;
+	result.prenom  = data.prenom;
+	result.course  = data.course;
+
+	return result;
     }
 
+    function cb2(params) {
+	var result = {};
 
-    _get_all_contestants(app, cb2);
+	//$.log("cb2: " + JSON.stringify(params));
 
-    return;
+	result = params.map(map_contestants);
+
+	//$.log("result: " + JSON.stringify(result));
+
+	//sink
+	cb(result);
+    }
+
+    get_all_contestants(app, cb2);
+
 }
 
